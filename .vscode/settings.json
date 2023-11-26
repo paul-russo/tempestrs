@@ -1,0 +1,11 @@
+{
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "driver": "SQLite",
+      "name": "weather",
+      "database": "${workspaceFolder:tempestrs}/weather.db3"
+    }
+  ],
+  "sqltools.useNodeRuntime": true
+}

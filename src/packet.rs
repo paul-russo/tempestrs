@@ -130,6 +130,7 @@ impl IntoWeather for Packet {
         match self {
             Packet::Observation { obs, .. } => {
                 let obs = obs[0];
+
                 Some(Weather {
                     time_epoch: obs[0] as i64,
                     wind_lull: obs[1] as f32,
