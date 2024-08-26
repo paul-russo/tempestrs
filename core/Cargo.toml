@@ -1,0 +1,10 @@
+[package]
+name = "core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde = {version = "1.0.159", features = ["derive"]}
+time = {version = "0.3.20", features = ["local-offset"]}
+chrono = "0.4.33"
+num-traits = "0.2.17"

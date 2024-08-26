@@ -1,0 +1,6 @@
+name = "tempest-worker"
+main = "worker/build/worker/shim.mjs"
+compatibility_date = "2024-08-25"
+
+[build]
+command = "cargo install -q worker-build && cd worker && worker-build --release"

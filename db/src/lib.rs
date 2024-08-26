@@ -1,9 +1,16 @@
-use rusqlite::{params, Connection, Result};
+use core::weather::Weather;
+use dirs::home_dir;
+use rusqlite::{params, Connection};
+use std::fs::create_dir;
 
-use crate::weather::Weather;
+pub fn connect() -> rusqlite::Result<Connection> {
+    let dir = home_dir().unwrap().join(".tempestrs");
 
-pub fn connect() -> Result<Connection> {
-    let conn = Connection::open("./weather.db3")?;
+    if !dir.exists() {
+        create_dir(&dir).expect("unable to create directory");
+    }
+
+    let conn = Connection::open(dir.join("weather.db3"))?;
 
     conn.execute(
         "CREATE TABLE IF NOT EXISTS observation (
@@ -34,11 +41,11 @@ pub fn connect() -> Result<Connection> {
 }
 
 pub trait InsertObservation {
-    fn insert_observation(&self, obs: Weather) -> Result<()>;
+    fn insert_observation(&self, obs: Weather) -> rusqlite::Result<()>;
 }
 
 impl InsertObservation for Connection {
-    fn insert_observation(&self, obs: Weather) -> Result<()> {
+    fn insert_observation(&self, obs: Weather) -> rusqlite::Result<()> {
         self.execute(
             "INSERT INTO observation (
                 time_epoch,
@@ -103,5 +110,44 @@ impl InsertObservation for Connection {
         )?;
 
         Ok(())
+    }
+}
+
+pub trait GetObservations {
+    fn get_observations(&self, limit: usize) -> rusqlite::Result<Vec<Weather>>;
+    fn get_latest_observation(&self) -> Option<Weather>;
+}
+
+impl GetObservations for Connection {
+    fn get_observations(&self, limit: usize) -> rusqlite::Result<Vec<Weather>> {
+        let mut stmt = self.prepare("SELECT * FROM observation ORDER BY id DESC LIMIT ?1")?;
+        let weather_rows = stmt.query_map(params!(limit), |row| {
+            Ok(Weather {
+                time_epoch: row.get(1)?,
+                wind_lull: row.get(2)?,
+                wind_avg: row.get(3)?,
+                wind_gust: row.get(4)?,
+                wind_direction: row.get(5)?,
+                wind_sample_interval: row.get(6)?,
+                station_pressure: row.get(7)?,
+                air_temp: row.get(8)?,
+                relative_humidity: row.get(9)?,
+                illuminance: row.get(10)?,
+                uv_index: row.get(11)?,
+                solar_radiation: row.get(12)?,
+                rain_over_prev_minute: row.get(13)?,
+                precip_type: row.get::<_, f64>(14)?.into(),
+                lightning_avg_distance: row.get(15)?,
+                lightning_strike_count: row.get(16)?,
+                battery_voltage: row.get(17)?,
+                report_interval: row.get(18)?,
+            })
+        })?;
+
+        weather_rows.collect()
+    }
+
+    fn get_latest_observation(&self) -> Option<Weather> {
+        self.get_observations(1).ok()?.first().map(|w| *w)
     }
 }

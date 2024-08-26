@@ -1,21 +1,16 @@
-mod db;
-mod packet;
-mod weather;
-
-use packet::Packet;
+use core::packet::Packet;
+use core::weather::IntoWeather;
+use db;
+use db::InsertObservation;
 use serde_json;
 use std::net::UdpSocket;
-use weather::Weather;
-
-use crate::{db::InsertObservation, weather::IntoWeather};
 
 fn main() {
-    let socket = UdpSocket::bind("0.0.0.0:50222").expect("Port 50222 should be bindable");
-
+    let socket = UdpSocket::bind("0.0.0.0:50222").expect("unable to bind to port 50222");
     let conn = db::connect().unwrap();
 
     loop {
-        let mut buf = [0u8; 65507];
+        let mut buf = [0u8; 64000];
         let result = socket.recv(&mut buf);
 
         match result {
@@ -39,7 +34,7 @@ fn main() {
                 }
             }
 
-            Err(ref err) => {
+            Err(err) => {
                 println!("Network error: {}", err)
             }
         }
