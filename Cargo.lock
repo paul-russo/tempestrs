@@ -135,6 +135,7 @@ version = "0.1.0"
 dependencies = [
  "core",
  "db",
+ "serde_json",
 ]
 
 [[package]]
@@ -1021,6 +1022,16 @@ checksum = "dff9641d1cd4be8d1a070daf9e3773c5f67e78b4d9d42263020c057706765c04"
 
 [[package]]
 name = "worker"
+version = "0.1.0"
+dependencies = [
+ "console_error_panic_hook",
+ "core",
+ "worker 0.2.0",
+ "worker-macros",
+]
+
+[[package]]
+name = "worker"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "aa130f6f7e5a0b716e0f5472d412fe97962ded204d76ddaf3eeba7360dfcae93"
@@ -1091,16 +1102,6 @@ dependencies = [
  "js-sys",
  "wasm-bindgen",
  "web-sys",
-]
-
-[[package]]
-name = "worker2"
-version = "0.1.0"
-dependencies = [
- "console_error_panic_hook",
- "core",
- "worker",
- "worker-macros",
 ]
 
 [[package]]

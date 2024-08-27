@@ -1,6 +1,7 @@
 use std::fmt::Display;
 
 use chrono::{DateTime, Local, LocalResult, TimeZone};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::{
     units::{Speed, SpeedUnit, TempUnit, Temperature},
@@ -26,6 +27,40 @@ impl From<f64> for PrecipitationType {
     }
 }
 
+impl Serialize for PrecipitationType {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let value = match self {
+            PrecipitationType::None => 0.0,
+            PrecipitationType::Rain => 1.0,
+            PrecipitationType::Hail => 2.0,
+            PrecipitationType::RainAndHail => 3.0,
+        };
+        serializer.serialize_f64(value)
+    }
+}
+
+impl<'de> Deserialize<'de> for PrecipitationType {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let value = f64::deserialize(deserializer)?;
+        match value as u64 {
+            0 => Ok(PrecipitationType::None),
+            1 => Ok(PrecipitationType::Rain),
+            2 => Ok(PrecipitationType::Hail),
+            3 => Ok(PrecipitationType::RainAndHail),
+            _ => Err(serde::de::Error::custom(format!(
+                "Invalid value for PrecipitationType: {}",
+                value
+            ))),
+        }
+    }
+}
+
 /**
 0: Time Epoch, Seconds
 1: Wind Lull (minimum 3 second sample), m/s
@@ -46,7 +81,7 @@ impl From<f64> for PrecipitationType {
 16: Battery, Volts
 17: Report Interval, Minutes
 */
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 pub struct Weather {
     pub time_epoch: i64,
     pub wind_lull: f32,

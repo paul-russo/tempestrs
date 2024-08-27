@@ -1,5 +1,5 @@
 [package]
-name = "worker2"
+name = "worker"
 version = "0.1.0"
 edition = "2021"
 authors = [ "Paul Russo <paul@paulrusso.me>" ]
@@ -15,7 +15,7 @@ wasm-opt = false
 crate-type = ["cdylib"]
 
 [dependencies]
-worker = { version="0.2.0" }
+worker = { version="0.2.0", features = ["d1"]}
 worker-macros = { version="0.2.0" }
 console_error_panic_hook = { version = "0.1.1" }
 core = { path = "../core" }

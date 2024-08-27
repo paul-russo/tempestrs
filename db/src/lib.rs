@@ -1,4 +1,7 @@
-use core::weather::Weather;
+use core::{
+    queries::{QUERY_CREATE_TABLE_OBSERVATION, QUERY_INSERT_OBSERVATION},
+    weather::Weather,
+};
 use dirs::home_dir;
 use rusqlite::{params, Connection};
 use std::fs::create_dir;
@@ -12,30 +15,7 @@ pub fn connect() -> rusqlite::Result<Connection> {
 
     let conn = Connection::open(dir.join("weather.db3"))?;
 
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS observation (
-            id INTEGER PRIMARY KEY,
-            time_epoch INTEGER,
-            wind_lull REAL,
-            wind_avg REAL,
-            wind_gust REAL,
-            wind_direction INTEGER,
-            wind_sample_interval INTEGER,
-            station_pressure REAL,
-            air_temp REAL,
-            relative_humidity REAL,
-            illuminance INTEGER,
-            uv_index REAL,
-            solar_radiation INTEGER,
-            rain_over_prev_minute REAL,
-            precip_type INTEGER,
-            lightning_avg_distance INTEGER,
-            lightning_strike_count INTEGER,
-            battery_voltage REAL,
-            report_interval INTEGER
-        )",
-        (),
-    )?;
+    conn.execute(QUERY_CREATE_TABLE_OBSERVATION, ())?;
 
     Ok(conn)
 }
@@ -47,46 +27,7 @@ pub trait InsertObservation {
 impl InsertObservation for Connection {
     fn insert_observation(&self, obs: Weather) -> rusqlite::Result<()> {
         self.execute(
-            "INSERT INTO observation (
-                time_epoch,
-                wind_lull,
-                wind_avg,
-                wind_gust,
-                wind_direction,
-                wind_sample_interval,
-                station_pressure,
-                air_temp,
-                relative_humidity,
-                illuminance,
-                uv_index,
-                solar_radiation,
-                rain_over_prev_minute,
-                precip_type,
-                lightning_avg_distance,
-                lightning_strike_count,
-                battery_voltage,
-                report_interval
-              )
-            VALUES (
-                ?1,
-                ?2,
-                ?3,
-                ?4,
-                ?5,
-                ?6,
-                ?7,
-                ?8,
-                ?9,
-                ?10,
-                ?11,
-                ?12,
-                ?13,
-                ?14,
-                ?15,
-                ?16,
-                ?17,
-                ?18
-              )",
+            QUERY_INSERT_OBSERVATION,
             params!(
                 obs.time_epoch,
                 obs.wind_lull,

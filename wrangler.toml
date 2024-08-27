@@ -1,6 +1,11 @@
-name = "tempest-worker"
+name = "tempest"
 main = "worker/build/worker/shim.mjs"
 compatibility_date = "2024-08-25"
 
 [build]
 command = "cargo install -q worker-build && cd worker && worker-build --release"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "tempest"
+database_id = "e89fc1b7-ba2d-4014-8d5b-78ee4536a823"
