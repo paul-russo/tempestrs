@@ -132,7 +132,7 @@ impl IntoWeather for Packet {
                 let obs = obs[0];
 
                 Some(Weather {
-                    time_epoch: obs[0] as i64,
+                    time_epoch: obs[0] as u64,
                     wind_lull: obs[1] as f32,
                     wind_avg: obs[2] as f32,
                     wind_gust: obs[3] as f32,

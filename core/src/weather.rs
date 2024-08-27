@@ -1,7 +1,7 @@
-use std::fmt::Display;
-
 use chrono::{DateTime, Local, LocalResult, TimeZone};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use std::fmt::Display;
+use wasm_bindgen::JsValue;
 
 use crate::{
     units::{Speed, SpeedUnit, TempUnit, Temperature},
@@ -27,18 +27,29 @@ impl From<f64> for PrecipitationType {
     }
 }
 
+impl Into<JsValue> for PrecipitationType {
+    fn into(self) -> JsValue {
+        match self {
+            PrecipitationType::None => JsValue::from(0),
+            PrecipitationType::Rain => JsValue::from(1),
+            PrecipitationType::Hail => JsValue::from(2),
+            PrecipitationType::RainAndHail => JsValue::from(3),
+        }
+    }
+}
+
 impl Serialize for PrecipitationType {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
         let value = match self {
-            PrecipitationType::None => 0.0,
-            PrecipitationType::Rain => 1.0,
-            PrecipitationType::Hail => 2.0,
-            PrecipitationType::RainAndHail => 3.0,
+            PrecipitationType::None => 0,
+            PrecipitationType::Rain => 1,
+            PrecipitationType::Hail => 2,
+            PrecipitationType::RainAndHail => 3,
         };
-        serializer.serialize_f64(value)
+        serializer.serialize_u8(value)
     }
 }
 
@@ -47,8 +58,8 @@ impl<'de> Deserialize<'de> for PrecipitationType {
     where
         D: Deserializer<'de>,
     {
-        let value = f64::deserialize(deserializer)?;
-        match value as u64 {
+        let value = u8::deserialize(deserializer)?;
+        match value {
             0 => Ok(PrecipitationType::None),
             1 => Ok(PrecipitationType::Rain),
             2 => Ok(PrecipitationType::Hail),
@@ -83,7 +94,7 @@ impl<'de> Deserialize<'de> for PrecipitationType {
 */
 #[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 pub struct Weather {
-    pub time_epoch: i64,
+    pub time_epoch: u64,
     pub wind_lull: f32,
     pub wind_avg: f32,
     pub wind_gust: f32,
@@ -105,7 +116,7 @@ pub struct Weather {
 
 impl Weather {
     pub fn get_time(&self) -> LocalResult<DateTime<Local>> {
-        Local.timestamp_opt(self.time_epoch, 0)
+        Local.timestamp_opt(self.time_epoch as i64, 0)
     }
 
     pub fn get_air_temp(&self) -> Temperature {

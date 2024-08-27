@@ -18,7 +18,7 @@ async fn handle_post_weather(mut req: Request, db: &D1Database) -> Result<Respon
 
     db.prepare(QUERY_INSERT_OBSERVATION)
         .bind(&[
-            (weather.time_epoch as f64).into(), // wasm-bindgen doesn't support i64
+            weather.time_epoch.into(),
             weather.wind_lull.into(),
             weather.wind_avg.into(),
             weather.wind_gust.into(),
@@ -31,7 +31,7 @@ async fn handle_post_weather(mut req: Request, db: &D1Database) -> Result<Respon
             weather.uv_index.into(),
             weather.solar_radiation.into(),
             weather.rain_over_prev_minute.into(),
-            (weather.precip_type as u8).into(),
+            weather.precip_type.into(),
             weather.lightning_avg_distance.into(),
             weather.lightning_strike_count.into(),
             weather.battery_voltage.into(),
